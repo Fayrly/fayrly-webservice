@@ -1,0 +1,324 @@
+<div class="mx-auto max-w-6xl px-4 pb-2 sm:px-6">
+  <section class="pt-6 sm:pt-8" aria-labelledby="home-heading">
+    <h1 id="home-heading" class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+      Temukan event yang berkesan
+    </h1>
+    <p class="mt-1 text-sm text-slate-500">
+      Konser, kegiatan amal, dan komunitas dalam satu tempat.
+    </p>
+  </section>
+
+  <section class="mt-6" aria-label="Event unggulan">
+    @if (upcomingSection.state().loading) {
+      <div
+        class="skeleton aspect-[16/10] w-full rounded-2xl sm:aspect-[21/9]"
+        aria-hidden="true"
+      ></div>
+    } @else if (upcomingSection.state().error) {
+      <app-error-state
+        [message]="upcomingSection.state().error!"
+        (retry)="upcomingSection.reload()"
+      />
+    } @else if (featured().length === 0) {
+      <app-empty-state
+        title="Belum ada event mendatang"
+        message="Event yang dipublikasikan akan muncul di sini."
+      />
+    } @else {
+      <div
+        class="relative overflow-hidden rounded-2xl bg-mint-900"
+        (mouseenter)="hovering.set(true)"
+        (mouseleave)="hovering.set(false)"
+        (focusin)="hovering.set(true)"
+        (focusout)="hovering.set(false)"
+      >
+        <div
+          #bannerTrack
+          class="no-scrollbar flex snap-x snap-mandatory overflow-x-auto"
+          (scroll)="onBannerScroll()"
+        >
+          @for (event of featured(); track event.id; let i = $index) {
+            <a
+              [routerLink]="['/events', event.slug]"
+              class="relative block aspect-[16/10] w-full shrink-0 snap-start sm:aspect-[21/9]"
+            >
+              @if (event.cover_image_url) {
+                <img
+                  [ngSrc]="event.cover_image_url"
+                  fill
+                  sizes="100vw"
+                  [priority]="i === 0"
+                  class="object-cover"
+                  [alt]="'Poster ' + event.title"
+                />
+              }
+              <div class="absolute inset-0 bg-slate-950/45"></div>
+              <div class="absolute inset-x-0 bottom-0 p-4 sm:p-8">
+                <span
+                  class="inline-flex items-center rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-mint-800"
+                >
+                  {{ typeLabel(event.type) }}
+                </span>
+                <h2
+                  class="mt-2 line-clamp-2 text-xl font-semibold leading-tight text-white sm:text-3xl"
+                >
+                  {{ event.title }}
+                </h2>
+                <p class="mt-1 text-sm text-white/85">
+                  {{ dateLabel(event) }}
+                  @if (event.city) {
+                    · {{ event.city }}
+                  }
+                </p>
+                <p class="mt-2 text-sm text-white/85">
+                  Mulai dari
+                  <span class="text-base font-bold text-white">{{ priceLabel(event) }}</span>
+                </p>
+              </div>
+            </a>
+          }
+        </div>
+
+        @if (featured().length > 1) {
+          <div
+            class="flex items-center justify-center gap-1 bg-mint-900 py-1"
+            role="group"
+            aria-label="Pilih event unggulan"
+          >
+            @for (event of featured(); track event.id; let i = $index) {
+              <button
+                type="button"
+                class="flex h-11 w-11 items-center justify-center rounded-full"
+                [attr.aria-label]="'Tampilkan ' + event.title"
+                [attr.aria-pressed]="activeSlide() === i"
+                (click)="goToSlide(i)"
+              >
+                <span
+                  class="block h-2.5 rounded-full transition-all duration-150"
+                  [class]="activeSlide() === i ? 'w-6 bg-mint-100' : 'w-2.5 bg-white/40'"
+                ></span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <nav class="no-scrollbar mt-6 flex gap-2 overflow-x-auto pb-1" aria-label="Kategori event">
+    @for (category of categories; track category.type) {
+      <a
+        routerLink="/events"
+        [queryParams]="category.type ? { type: category.type } : {}"
+        class="chip shrink-0"
+      >
+        {{ category.label }}
+      </a>
+    }
+  </nav>
+
+  <section class="pt-10" aria-labelledby="top-picks-heading">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 id="top-picks-heading" class="text-lg font-semibold text-slate-900 sm:text-xl">
+          Pilihan teratas untukmu
+        </h2>
+        <p class="mt-0.5 text-sm text-slate-500">
+          Lima event yang paling banyak menarik perhatian.
+        </p>
+      </div>
+      <div
+        class="no-scrollbar flex gap-2 overflow-x-auto pb-1"
+        role="group"
+        aria-label="Filter pilihan teratas"
+      >
+        @for (option of topPickOptions; track option.value) {
+          <button
+            type="button"
+            [class]="
+              topPickMode() === option.value
+                ? 'chip shrink-0 border-mint-300 bg-mint-50 text-mint-800'
+                : 'chip shrink-0'
+            "
+            [attr.aria-pressed]="topPickMode() === option.value"
+            (click)="setTopPick(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="mt-4">
+      @if (upcomingSection.state().loading) {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          @for (item of [1, 2, 3, 4, 5]; track item) {
+            <app-event-card-skeleton />
+          }
+        </div>
+      } @else if (upcomingSection.state().error) {
+        <app-error-state
+          [message]="upcomingSection.state().error!"
+          (retry)="upcomingSection.reload()"
+        />
+      } @else if (topPicks().length === 0) {
+        <app-empty-state
+          [title]="
+            topPickMode() === 'free' ? 'Belum ada event gratis' : 'Belum ada pilihan untukmu'
+          "
+          [message]="
+            topPickMode() === 'free'
+              ? 'Coba lihat kategori lain atau jelajahi semua event mendatang.'
+              : 'Event baru akan tampil di sini setelah dipublikasikan.'
+          "
+          [actionLabel]="topPickMode() === 'free' ? 'Lihat sorotan' : null"
+          (action)="setTopPick('highlight')"
+        />
+      } @else {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          @for (event of topPicks(); track event.id) {
+            <app-event-card [event]="event" [compact]="true" />
+          }
+        </div>
+      }
+    </div>
+
+    <a
+      routerLink="/events"
+      class="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors duration-150 hover:border-mint-300 hover:bg-mint-50 hover:text-mint-800"
+    >
+      Lihat semua event
+      <lucide-icon name="arrow-right" class="h-4 w-4" aria-hidden="true" />
+    </a>
+  </section>
+
+  @for (section of sections; track section.id) {
+    <section class="pt-10" [attr.aria-labelledby]="'section-' + section.id">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h2
+            [id]="'section-' + section.id"
+            class="text-lg font-semibold text-slate-900 sm:text-xl"
+          >
+            {{ section.title }}
+          </h2>
+          <p class="mt-0.5 text-sm text-slate-500">{{ section.subtitle }}</p>
+        </div>
+        <a
+          routerLink="/events"
+          [queryParams]="section.queryParams"
+          class="hidden shrink-0 items-center gap-1 text-sm font-semibold text-mint-700 hover:text-mint-900 sm:inline-flex"
+        >
+          Lihat semua
+          <lucide-icon name="arrow-right" class="h-4 w-4" aria-hidden="true" />
+        </a>
+      </div>
+
+      <div class="mt-4">
+        @if (section.state().loading) {
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            @for (item of [1, 2, 3, 4, 5]; track item) {
+              <app-event-card-skeleton />
+            }
+          </div>
+        } @else if (section.state().error) {
+          <app-error-state [message]="section.state().error!" (retry)="section.reload()" />
+        } @else if (section.state().events.length === 0) {
+          <app-empty-state
+            [title]="'Belum ada ' + section.title.toLowerCase()"
+            message="Event baru akan tampil di sini setelah dipublikasikan."
+          />
+        } @else {
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            @for (event of section.state().events; track event.id) {
+              <app-event-card [event]="event" [compact]="true" />
+            }
+          </div>
+        }
+      </div>
+
+      <a
+        routerLink="/events"
+        [queryParams]="section.queryParams"
+        class="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-mint-700 hover:text-mint-900 sm:hidden"
+      >
+        Lihat semua {{ section.title.toLowerCase() }}
+        <lucide-icon name="arrow-right" class="h-4 w-4" aria-hidden="true" />
+      </a>
+    </section>
+  }
+
+  <section class="pt-12 mb-12" aria-labelledby="reviews-heading">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-mint-700">
+          Real users, real reviews
+        </p>
+        <h2 id="reviews-heading" class="mt-2 text-lg font-semibold text-slate-900 sm:text-xl">
+          Ulasan nyata, dari pengguna nyata
+        </h2>
+        <p class="mt-0.5 text-sm text-slate-500">
+          Cerita singkat dari orang yang sudah hadir di event Fayrly.
+        </p>
+      </div>
+      <a
+        routerLink="/ulasan"
+        class="hidden shrink-0 items-center gap-1 text-sm font-semibold text-mint-700 hover:text-mint-900 sm:inline-flex"
+      >
+        Lihat semua ulasan
+        <lucide-icon name="arrow-right" class="h-4 w-4" aria-hidden="true" />
+      </a>
+    </div>
+
+    <div class="mt-4">
+      @if (reviewState().loading) {
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          @for (item of [1, 2, 3]; track item) {
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-card">
+              <div class="flex items-center gap-3">
+                <div class="skeleton h-14 w-14 rounded-xl"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="skeleton h-3.5 w-3/4"></div>
+                  <div class="skeleton h-3 w-1/3"></div>
+                </div>
+              </div>
+              <div class="mt-5 flex items-center gap-3">
+                <div class="skeleton h-10 w-10 rounded-full"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="skeleton h-3 w-1/2"></div>
+                  <div class="skeleton h-3 w-1/4"></div>
+                </div>
+              </div>
+              <div class="mt-4 space-y-2">
+                <div class="skeleton h-3 w-full"></div>
+                <div class="skeleton h-3 w-full"></div>
+                <div class="skeleton h-3 w-2/3"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (reviewState().error) {
+        <app-error-state [message]="reviewState().error!" (retry)="reloadReviews()" />
+      } @else if (reviewState().reviews.length === 0) {
+        <app-empty-state
+          title="Belum ada ulasan"
+          message="Ulasan dari pengguna akan tampil di sini setelah event berlangsung."
+        />
+      } @else {
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          @for (review of reviewState().reviews; track review.id) {
+            <app-review-card [review]="review" />
+          }
+        </div>
+      }
+    </div>
+
+    <a
+      routerLink="/ulasan"
+      class="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors duration-150 hover:border-mint-300 hover:bg-mint-50 hover:text-mint-800 sm:hidden"
+    >
+      Lihat semua ulasan
+      <lucide-icon name="arrow-right" class="h-4 w-4" aria-hidden="true" />
+    </a>
+  </section>
+</div>

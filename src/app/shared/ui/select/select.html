@@ -1,0 +1,59 @@
+<div class="relative w-full">
+  <button
+    #trigger
+    type="button"
+    role="combobox"
+    aria-haspopup="listbox"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="listId"
+    [attr.aria-activedescendant]="open() ? optionId(activeIndex()) : null"
+    class="flex min-h-11 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-left text-sm font-medium text-slate-700 transition-colors duration-150 hover:border-mint-300 focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-200"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
+  >
+    @if (icon(); as leadingIcon) {
+      <lucide-icon [name]="leadingIcon" class="h-4 w-4 shrink-0 text-mint-600" aria-hidden="true" />
+    }
+    <span class="min-w-0 flex-1 truncate">{{ selectedLabel() }}</span>
+    <lucide-icon
+      name="chevron-down"
+      class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-150"
+      [class.rotate-180]="open()"
+      aria-hidden="true"
+    />
+  </button>
+
+  @if (open()) {
+    <ul
+      [id]="listId"
+      role="listbox"
+      class="absolute left-0 right-0 z-30 mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-slate-100 bg-white p-1 shadow-card-hover"
+    >
+      @for (option of options(); track option.value; let i = $index) {
+        <li
+          [id]="optionId(i)"
+          role="option"
+          [attr.aria-selected]="option.value === value()"
+          class="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm transition-colors duration-100"
+          [class]="
+            i === activeIndex()
+              ? 'bg-mint-50 font-medium text-mint-900'
+              : 'text-slate-600 hover:bg-slate-50'
+          "
+          (mouseenter)="activeIndex.set(i)"
+          (click)="choose(option)"
+        >
+          <span class="min-w-0 flex-1 truncate">{{ option.label }}</span>
+          @if (option.value === value()) {
+            <lucide-icon name="check" class="h-4 w-4 shrink-0 text-mint-700" aria-hidden="true" />
+          }
+        </li>
+      }
+
+      @if (options().length === 0) {
+        <li class="px-3 py-2.5 text-sm text-slate-400">Tidak ada pilihan</li>
+      }
+    </ul>
+  }
+</div>

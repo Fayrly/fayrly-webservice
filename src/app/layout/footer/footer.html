@@ -1,0 +1,38 @@
+<footer class="mt-2 border-t border-slate-100 bg-white">
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+      <div class="max-w-sm">
+        <span class="text-2xl font-bold tracking-tight text-mint-800">fayrly<span class="text-crimson-500">.</span></span>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">
+          Temukan konser, event amal, dan kegiatan komunitas terdekat. Satu tempat untuk melihat jadwal, lokasi, dan harga tiket.
+        </p>
+      </div>
+
+      <nav class="grid grid-cols-2 gap-8 text-sm" aria-label="Tautan footer">
+        <div>
+          <p class="font-semibold text-slate-800">Jelajahi</p>
+          <ul class="mt-3 space-y-2 text-slate-500">
+            <li><a routerLink="/events" class="hover:text-mint-700">Semua event</a></li>
+            <li><a routerLink="/events" [queryParams]="{ type: 'concert' }" class="hover:text-mint-700">Konser</a></li>
+            <li><a routerLink="/events" [queryParams]="{ type: 'charity' }" class="hover:text-mint-700">Event amal</a></li>
+            <li><a routerLink="/events" [queryParams]="{ type: 'community' }" class="hover:text-mint-700">Komunitas</a></li>
+            <li><a routerLink="/ulasan" class="hover:text-mint-700">Ulasan pengguna</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-slate-800">Bantuan</p>
+          <ul class="mt-3 space-y-2 text-slate-500">
+            <li><a href="mailto:halo@fayrly.local" class="hover:text-mint-700">Hubungi kami</a></li>
+            @if (!auth.isAuthenticated()) {
+              <li><a routerLink="/masuk" class="hover:text-mint-700">Masuk akun</a></li>
+            }
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="mt-8 border-t border-slate-100 pt-6 text-xs text-slate-400">
+      © {{ year }} Fayrly. Semua waktu ditampilkan dalam WIB.
+    </div>
+  </div>
+</footer>

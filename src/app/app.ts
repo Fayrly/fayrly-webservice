@@ -9,4 +9,6 @@ import { AppHeader } from './layout/header/header';
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
-export class App {}
+export class App {
+  readonly maintenanceMode = true;
+}

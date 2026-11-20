@@ -1,0 +1,28 @@
+.maintenance-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 3rem 1.25rem 2.5rem;
+  background: #fff;
+  color: var(--color-mint-950);
+}
+
+.maintenance-content {
+  width: min(100%, 900px);
+  text-align: center;
+}
+
+.maintenance-brand { display: block; width: min(11rem, 42vw); height: auto; margin: 0 auto clamp(4rem, 10vh, 7rem); }
+.maintenance-content h1 { margin: 0 auto 2rem; color: var(--color-mint-950); font-size: clamp(2.25rem, 5vw, 4rem); font-weight: 500; line-height: 1.15; letter-spacing: -0.055em; }
+.maintenance-copy { max-width: 34rem; margin: 0 auto; color: #172b43; font-size: clamp(0.95rem, 1.5vw, 1.1rem); line-height: 1.5; }
+.maintenance-signoff { margin-top: 1.5rem; color: var(--color-mint-800); font-size: 1rem; }
+
+.maintenance-divider { width: 100%; height: 1px; margin-top: 0.5rem; background: #dfe5e4; }
+.maintenance-contact { margin-top: 3.25rem; color: #59616b; font-size: 1rem; }
+.maintenance-contact a { color: var(--color-mint-700); font-weight: 600; text-decoration: none; }
+.maintenance-contact a:hover { text-decoration: underline; }
+
+@media (max-width: 640px) {
+  .maintenance-brand { margin-bottom: 4rem; }
+  .maintenance-content h1 br { display: none; }
+}

@@ -1,14 +1,37 @@
-<a
-  href="#konten"
-  class="sr-only z-50 rounded-lg bg-mint-800 px-4 py-2 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
->
-  Lewati ke konten
-</a>
+@if (maintenanceMode) {
+  <main class="maintenance-page" aria-labelledby="maintenance-title">
+    <section class="maintenance-content">
+      <img class="maintenance-brand" src="/brandlogo-black.svg" alt="Fayrly" />
 
-<app-header />
+      <h1 id="maintenance-title">Website kami sedang<br />dalam maintenance</h1>
 
-<main id="konten" class="min-h-[60vh]">
-  <router-outlet />
-</main>
+      <p class="maintenance-copy">
+        Maaf atas ketidaknyamanannya. Kami sedang melakukan beberapa peningkatan
+        agar pengalaman kamu di Fayrly semakin baik.
+        <br />Silakan kembali lagi sebentar.
+      </p>
 
-<app-footer />
+      <p class="maintenance-signoff">— Tim Fayrly</p>
+
+      <div class="maintenance-divider"></div>
+
+      <p class="maintenance-contact">
+        Kamu bisa menghubungi kami di:
+        <a href="mailto:hello@fayrly.my.id">hello@fayrly.my.id</a>
+      </p>
+    </section>
+  </main>
+} @else {
+  <a
+    href="#konten"
+    class="sr-only z-50 rounded-lg bg-mint-800 px-4 py-2 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+  >
+    Lewati ke konten
+  </a>
+
+  <app-header />
+
+  <main id="konten" class="min-h-[60vh]"><router-outlet /></main>
+
+  <app-footer />
+}
